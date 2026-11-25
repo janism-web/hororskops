@@ -3,19 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-gPtng4ZyAZ3JD1ih97hvqA54L2zvpjqAkRX/ARjqAK0='; style-src 'sha256-0aIOm9X8Q/K4mdGO0V5JJLPxLu0TwCFL9mxLYvpilAc='; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none';">
+  <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()">
+  <meta name="referrer" content="no-referrer">
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F7F9FC">
   <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#121316">
   <meta name="description" content="Analītisks 7 dienu horoskops Svariem un Vēzim ar galvenajiem + un -.">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <title>Horoskops — Svari & Vēzis</title>
   <link rel="manifest" href="./manifest.json">
   <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-  <link rel="apple-touch-icon" href="./icon-192.png">
   <style>
     :root {
-      /* Material You Light Palette (matching the clean ice-slate tone of your launcher) */
       --bg: #F7F9FC;
       --surface: #FFFFFF;
       --surface-container: #ECEFF5;
@@ -28,7 +27,6 @@
       --secondary-container: #DFE5EF;
       --on-secondary-container: #161C24;
 
-      /* Tonal containers for + and - */
       --pos-container: #E3F3E8;
       --on-pos-container: #0D381E;
       --pos-badge: #1E6E3E;
@@ -38,7 +36,6 @@
 
       --nav-height: 76px;
       --radius-lg: 24px;
-      --radius-md: 16px;
       --radius-pill: 999px;
     }
 
@@ -91,7 +88,6 @@
       padding-top: env(safe-area-inset-top, 0px);
     }
 
-    /* Top App Bar */
     header.top-bar {
       padding: 14px 20px 8px;
       display: flex;
@@ -139,7 +135,6 @@
       fill: currentColor;
     }
 
-    /* 7-Day Google Calendar-style Strip (Zero horizontal scroll) */
     .week-strip {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -201,7 +196,6 @@
       color: var(--on-primary);
     }
 
-    /* Pull-to-refresh indicator */
     .ptr-indicator {
       height: 0;
       overflow: hidden;
@@ -214,7 +208,6 @@
       transition: height 0.2s ease;
     }
 
-    /* Main Scrollable Content Area */
     main.content-area {
       flex: 1;
       overflow-y: auto;
@@ -273,7 +266,6 @@
       color: var(--on-surface);
     }
 
-    /* Tonal Containers for + and - */
     .tonal-box {
       border-radius: var(--radius-lg);
       padding: 16px 18px;
@@ -343,7 +335,6 @@
       opacity: 0.75;
     }
 
-    /* Skeleton Loader */
     .skeleton {
       border-radius: var(--radius-lg);
       background: linear-gradient(90deg, var(--surface-container) 25%, var(--surface-container-high) 50%, var(--surface-container) 75%);
@@ -351,12 +342,14 @@
       animation: shimmer 1.2s infinite linear;
     }
 
+    .skeleton-summary { height: 132px; }
+    .skeleton-box { height: 148px; }
+
     @keyframes shimmer {
       0% { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
 
-    /* Material 3 Bottom Navigation Bar in Thumb Zone */
     nav.bottom-nav {
       position: fixed;
       bottom: 0;
@@ -417,7 +410,7 @@
       font-size: 12px;
       font-weight: 600;
     }
-  </style>
+</style>
 </head>
 <body>
   <div class="app-shell">
@@ -466,19 +459,25 @@
     (() => {
       'use strict';
 
-      // Register Service Worker for Android PWA offline support & installation
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('./sw.js').catch(() => {});
+          navigator.serviceWorker.register('./sw.js', { scope: './' }).catch(() => {});
         });
       }
 
-      const DAYS_SHORT = ['Sv', 'P', 'O', 'T', 'C', 'P', 'S'];
-      const DAYS_FULL = ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'];
-      const MONTHS_GEN = ['janvāris', 'februāris', 'marts', 'aprīlis', 'maijs', 'jūnijs', 'jūlijs', 'augusts', 'septembris', 'oktobris', 'novembris', 'decembris'];
+      function deepFreeze(obj) {
+        if (obj && typeof obj === 'object' && !Object.isFrozen(obj)) {
+          Object.freeze(obj);
+          Object.keys(obj).forEach((key) => deepFreeze(obj[key]));
+        }
+        return obj;
+      }
 
-      // Grounded, realistic analytical forecast matrix (no tabloid clichés)
-      const DATA_BANK = {
+      const DAYS_SHORT = Object.freeze(['Sv', 'P', 'O', 'T', 'C', 'P', 'S']);
+      const DAYS_FULL = Object.freeze(['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena']);
+      const MONTHS_GEN = Object.freeze(['janvāris', 'februāris', 'marts', 'aprīlis', 'maijs', 'jūnijs', 'jūlijs', 'augusts', 'septembris', 'oktobris', 'novembris', 'decembris']);
+
+      const DATA_BANK = deepFreeze({
         svari: [
           {
             focus: 'Lēmumu pieņemšana un robežas',
@@ -542,7 +541,7 @@
           },
           {
             focus: 'Atjaunošanās un perspektīva',
-            summary: 'Diena piemērota distancēšanās no ikdienas steigas. Laba intutīvā skaidrība par to, kādus mērķus ir vērts turpināt nākamajā nedēļā.',
+            summary: 'Diena piemērota distancēšanās no ikdienas steigas. Laba intuitīvā skaidrība par to, kādus mērķus ir vērts turpināt nākamajā nedēļā.',
             plus: [
               { key: 'Kvalitatīva atpūta:', text: 'Mainot ierasto maršrutu vai vidi, ātri atgūsiet enerģiju.' },
               { key: 'Radošs skatījums:', text: 'Radīsies nestandarta risinājums kādai sadzīviskai problēmai.' }
@@ -651,15 +650,32 @@
             ]
           }
         ]
-      };
+      });
 
-      // State
-      let currentSign = localStorage.getItem('horoscope_sign') || 'svari';
-      if (!DATA_BANK[currentSign]) currentSign = 'svari';
+      // Safe Storage wrapper (prevents crashes in strict privacy / incognito modes)
+      let memorySign = 'svari';
+      function readStoredSign() {
+        try {
+          const val = window.localStorage.getItem('horoscope_sign');
+          if (val === 'svari' || val === 'vezis') {
+            memorySign = val;
+          }
+        } catch (_) {}
+        return memorySign;
+      }
+
+      function writeStoredSign(sign) {
+        if (sign !== 'svari' && sign !== 'vezis') return;
+        memorySign = sign;
+        try {
+          window.localStorage.setItem('horoscope_sign', sign);
+        } catch (_) {}
+      }
+
+      let currentSign = readStoredSign();
       let selectedDayOffset = 0;
       let variationSeed = 0;
 
-      // DOM elements
       const headerSignTitle = document.getElementById('headerSignTitle');
       const headerSubtitle = document.getElementById('headerSubtitle');
       const weekStrip = document.getElementById('weekStrip');
@@ -669,17 +685,6 @@
       const refreshBtn = document.getElementById('refreshBtn');
       const navButtons = document.querySelectorAll('.nav-item');
 
-      // Clean old cache keys (Garbage Collection)
-      function cleanOldCache() {
-        const todayStr = getDateKey(0);
-        for (let i = localStorage.length - 1; i >= 0; i--) {
-          const k = localStorage.key(i);
-          if (k && k.startsWith('horoscope_v1_') && !k.includes(todayStr.slice(0, 7))) {
-            localStorage.removeItem(k);
-          }
-        }
-      }
-
       function getDateObj(offset) {
         const d = new Date();
         d.setHours(12, 0, 0, 0);
@@ -687,21 +692,14 @@
         return d;
       }
 
-      function getDateKey(offset) {
-        const d = getDateObj(offset);
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-      }
-
-      // Deterministic daily index based on date + sign + user refresh seed
       function getForecastForDay(sign, offset) {
         const d = getDateObj(offset);
         const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
-        const list = DATA_BANK[sign];
+        const list = Object.prototype.hasOwnProperty.call(DATA_BANK, sign) ? DATA_BANK[sign] : DATA_BANK.svari;
         const idx = (dayOfYear + variationSeed) % list.length;
         return list[idx];
       }
 
-      // Render 7-day strip (Zero innerHTML)
       function renderWeekStrip() {
         weekStrip.replaceChildren();
         for (let i = 0; i < 7; i++) {
@@ -728,25 +726,20 @@
         }
       }
 
-      // Render Skeleton Loading briefly on manual refresh for tactile feedback
       function renderSkeleton() {
         forecastPanel.replaceChildren();
         const s1 = document.createElement('div');
-        s1.className = 'skeleton';
-        s1.style.height = '132px';
+        s1.className = 'skeleton skeleton-summary';
 
         const s2 = document.createElement('div');
-        s2.className = 'skeleton';
-        s2.style.height = '148px';
+        s2.className = 'skeleton skeleton-box';
 
         const s3 = document.createElement('div');
-        s3.className = 'skeleton';
-        s3.style.height = '148px';
+        s3.className = 'skeleton skeleton-box';
 
         forecastPanel.append(s1, s2, s3);
       }
 
-      // Render Forecast Content using safe DOM APIs (Zero innerHTML)
       function renderForecast() {
         const d = getDateObj(selectedDayOffset);
         const data = getForecastForDay(currentSign, selectedDayOffset);
@@ -756,7 +749,6 @@
 
         forecastPanel.replaceChildren();
 
-        // 1. Summary Card
         const summaryCard = document.createElement('section');
         summaryCard.className = 'summary-card';
 
@@ -779,10 +771,7 @@
 
         summaryCard.append(summaryMeta, summaryText);
 
-        // 2. Positive Tonal Container (+)
         const posBox = buildTonalBox('positive', '+', 'Galvenie + (Iespējas)', data.plus);
-
-        // 3. Negative Tonal Container (-)
         const negBox = buildTonalBox('negative', '−', 'Galvenie − (Riski)', data.minus);
 
         forecastPanel.append(summaryCard, posBox, negBox);
@@ -823,16 +812,16 @@
       }
 
       function selectDay(offset) {
-        if (offset < 0 || offset > 6) return;
+        if (!Number.isInteger(offset) || offset < 0 || offset > 6) return;
         selectedDayOffset = offset;
         renderWeekStrip();
         renderForecast();
       }
 
       function selectSign(sign) {
-        if (!DATA_BANK[sign] || sign === currentSign) return;
+        if ((sign !== 'svari' && sign !== 'vezis') || sign === currentSign) return;
         currentSign = sign;
-        localStorage.setItem('horoscope_sign', sign);
+        writeStoredSign(sign);
         navButtons.forEach((btn) => {
           if (btn.dataset.sign === sign) {
             btn.setAttribute('aria-current', 'page');
@@ -846,20 +835,17 @@
       function triggerRefresh() {
         variationSeed = (variationSeed + 1) % 7;
         renderSkeleton();
-        setTimeout(() => {
+        window.setTimeout(() => {
           renderForecast();
         }, 260);
       }
 
-      // Bottom Nav listeners
       navButtons.forEach((btn) => {
         btn.addEventListener('click', () => selectSign(btn.dataset.sign));
       });
 
-      // Top refresh button
       refreshBtn.addEventListener('click', triggerRefresh);
 
-      // Keyboard navigation (ArrowLeft / ArrowRight)
       document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowRight' && selectedDayOffset < 6) {
           selectDay(selectedDayOffset + 1);
@@ -868,7 +854,6 @@
         }
       });
 
-      // Touch gestures: Horizontal Swipe for days + Pull-to-Refresh
       let touchStartX = 0;
       let touchStartY = 0;
       let isPulling = false;
@@ -905,7 +890,6 @@
         }
         isPulling = false;
 
-        // Horizontal swipe (ignore edge swipes to protect Android Predictive Back)
         if (touchStartX > 32 && touchStartX < window.innerWidth - 32) {
           if (Math.abs(dx) > 55 && Math.abs(dx) > Math.abs(dy) * 1.4) {
             if (dx < 0 && selectedDayOffset < 6) {
@@ -917,8 +901,6 @@
         }
       }, { passive: true });
 
-      // Init
-      cleanOldCache();
       navButtons.forEach((btn) => {
         if (btn.dataset.sign === currentSign) {
           btn.setAttribute('aria-current', 'page');
@@ -929,6 +911,6 @@
       renderWeekStrip();
       renderForecast();
     })();
-  </script>
+</script>
 </body>
 </html>

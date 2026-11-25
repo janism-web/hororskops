@@ -1,5 +1,16 @@
-const CACHE_NAME = 'horoskops-m3-v1';
-const ASSETS = [
+const CACHE_NAME = 'horoskops-m3-sec-v2';
+
+// Strict allowlist of local static assets (prevents cache poisoning via arbitrary URLs or query strings)
+const ALLOWED_FILES = new Map([
+  ['', 'text/html'],
+  ['index.html', 'text/html'],
+  ['manifest.json', 'application/json'],
+  ['icon-192.png', 'image/png'],
+  ['icon-512.png', 'image/png'],
+  ['icon-maskable-512.png', 'image/png']
+]);
+
+const PRECACHE_URLS = [
   './',
   './index.html',
   './manifest.json',
@@ -8,9 +19,25 @@ const ASSETS = [
   './icon-maskable-512.png'
 ];
 
+function getRelativeAssetName(requestUrl) {
+  const url = new URL(requestUrl);
+  if (url.origin !== self.location.origin) return null;
+  const scopePath = new URL(self.registration.scope).pathname;
+  if (!url.pathname.startsWith(scopePath)) return null;
+  return url.pathname.slice(scopePath.length);
+}
+
+function isValidContentType(response, expectedPrefix) {
+  const ct = (response.headers.get('Content-Type') || '').toLowerCase();
+  if (expectedPrefix === 'application/json') {
+    return ct.includes('application/json') || ct.includes('application/manifest+json');
+  }
+  return ct.includes(expectedPrefix);
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS))
   );
   self.skipWaiting();
 });
@@ -26,17 +53,33 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
+
+  const assetName = getRelativeAssetName(event.request.url);
+  if (assetName === null || !ALLOWED_FILES.has(assetName)) {
+    return; // Ignore non-allowlisted paths
+  }
+
+  const expectedType = ALLOWED_FILES.get(assetName);
+  // Normalize cache key without query strings to prevent cache-busting DoS/poisoning
+  const canonicalUrl = new URL(assetName || './', self.registration.scope).href;
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const networkFetch = fetch(event.request)
+    caches.match(canonicalUrl).then((cached) => {
+      const networkFetch = fetch(canonicalUrl, { credentials: 'same-origin' })
         .then((response) => {
-          if (response && response.status === 200 && response.type === 'basic') {
+          if (
+            response &&
+            response.status === 200 &&
+            response.type === 'basic' &&
+            isValidContentType(response, expectedType)
+          ) {
             const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+            caches.open(CACHE_NAME).then((cache) => cache.put(canonicalUrl, copy));
           }
           return response;
         })
         .catch(() => cached);
+
       return cached || networkFetch;
     })
   );
