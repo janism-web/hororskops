@@ -1,6 +1,5 @@
-const CACHE_NAME = 'horoskops-m3-sec-v2';
+const CACHE_NAME = 'horoskops-m3-sec-v3';
 
-// Strict allowlist of local static assets (prevents cache poisoning via arbitrary URLs or query strings)
 const ALLOWED_FILES = new Map([
   ['', 'text/html'],
   ['index.html', 'text/html'],
@@ -56,11 +55,10 @@ self.addEventListener('fetch', (event) => {
 
   const assetName = getRelativeAssetName(event.request.url);
   if (assetName === null || !ALLOWED_FILES.has(assetName)) {
-    return; // Ignore non-allowlisted paths
+    return;
   }
 
   const expectedType = ALLOWED_FILES.get(assetName);
-  // Normalize cache key without query strings to prevent cache-busting DoS/poisoning
   const canonicalUrl = new URL(assetName || './', self.registration.scope).href;
 
   event.respondWith(

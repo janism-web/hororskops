@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-gPtng4ZyAZ3JD1ih97hvqA54L2zvpjqAkRX/ARjqAK0='; style-src 'sha256-0aIOm9X8Q/K4mdGO0V5JJLPxLu0TwCFL9mxLYvpilAc='; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-UcdJyS6pYwbk7PzPIX1tQFIzHrI1Lo/tOoIa4WP+A5A='; style-src 'sha256-J5pBaVuwdc1HyAPwJlMKRl6aK/os657sm+kN/smTSBc='; img-src 'self'; manifest-src 'self'; worker-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none';">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()">
   <meta name="referrer" content="no-referrer">
   <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F7F9FC">
@@ -34,6 +34,12 @@
       --on-neg-container: #410E0B;
       --neg-badge: #B3261E;
 
+      /* Distinct warm amber/gold Material 3 Tonal Alert for Lottery Probability */
+      --lottery-container: #FEF2D6;
+      --on-lottery-container: #3D2800;
+      --lottery-border: #E5B94C;
+      --lottery-badge: #9A6700;
+
       --nav-height: 76px;
       --radius-lg: 24px;
       --radius-pill: 999px;
@@ -59,6 +65,11 @@
         --neg-container: #361B1A;
         --on-neg-container: #F9DEDC;
         --neg-badge: #F2B8B5;
+
+        --lottery-container: #332609;
+        --on-lottery-container: #FCE29F;
+        --lottery-border: #7A590C;
+        --lottery-badge: #F5C344;
       }
     }
 
@@ -226,6 +237,57 @@
     @keyframes fadeSlide {
       from { opacity: 0.4; transform: translateY(4px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Highlighted Lottery Probability Callout Banner (Rendered ONLY on qualifying days) */
+    .lottery-alert {
+      background: var(--lottery-container);
+      color: var(--on-lottery-container);
+      border: 1.5px solid var(--lottery-border);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .lottery-icon-wrap {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-pill);
+      background: var(--lottery-badge);
+      color: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .lottery-icon-wrap svg {
+      width: 19px;
+      height: 19px;
+      fill: currentColor;
+    }
+
+    .lottery-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .lottery-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      margin: 0 0 3px;
+    }
+
+    .lottery-desc {
+      font-size: 14px;
+      line-height: 1.42;
+      margin: 0;
+      font-weight: 500;
     }
 
     .summary-card {
@@ -493,6 +555,7 @@
           },
           {
             focus: 'Finanšu un resursu balanss',
+            lotteryAlert: 'Paaugstināta finanšu veiksmes varbūtība — labvēlīgs brīdis nelielai loterijas biļetei vai izlozei ar iepriekš noteiktu budžeta limitu.',
             summary: 'Praktiska un piezemēta diena. Uzmanība dabiski pievērsīsies budžetam, ikdienas efektivitātei un tam, kur aizplūst jūsu enerģija bez reālas atdeves.',
             plus: [
               { key: 'Racionāls skatījums:', text: 'Spēsiet objektīvi izvērtēt izdevumus un atteikties no liekā.' },
@@ -529,6 +592,7 @@
           },
           {
             focus: 'Iniciatīva un rezultāti',
+            lotteryAlert: 'Labvēlīgs negaidītu ieguvumu fons — ja plānojāt piedalīties skaitļu izlozē vai momentloterijā, šodien ir piemērotākais brīdis.',
             summary: 'Labvēlīgs brīdis iesākto darbu pabeigšanai. Apkārtējie novērtēs jūsu mierīgo pieeju situācijās, kur citi sāk lieki satraukties.',
             plus: [
               { key: 'Konkrēts progress:', text: 'Izdevīgs laiks punktu pielikšanai ieilgušiem uzdevumiem.' },
@@ -567,6 +631,7 @@
         vezis: [
           {
             focus: 'Drošība, mērķtiecība un intuīcija',
+            lotteryAlert: 'Spēcīga skaitļu un sakritību intuīcija — šodien ir paaugstināta neliela naudas laimesta vai veiksmīgas izlozes varbūtība.',
             summary: 'Spēcīga iekšējā intuīcija palīdzēs precīzi nolasīt citu cilvēku patiesos nodomus. Koncentrējieties uz praktiskiem soļiem, kas stiprina jūsu stabilitāti.',
             plus: [
               { key: 'Precīza priekšnojauta:', text: 'Uzticieties pirmajam iespaidam sarunās un darījumos.' },
@@ -615,6 +680,7 @@
           },
           {
             focus: 'Mērķtiecība un pašpārliecinātība',
+            lotteryAlert: 'Labvēlīga finanšu nejaušību diena — pieaug varbūtība gūt negaidītu naudas laimestu loterijā vai konkursā.',
             summary: 'Diena dod papildu apņēmību aizstāvēt savas intereses. Labs brīdis sarunām par darba nosacījumiem vai ilgtermiņa plāniem.',
             plus: [
               { key: 'Spēcīga pozīcija:', text: 'Jūsu argumenti būs pamatoti un grūti apstrīdami.' },
@@ -652,7 +718,6 @@
         ]
       });
 
-      // Safe Storage wrapper (prevents crashes in strict privacy / incognito modes)
       let memorySign = 'svari';
       function readStoredSign() {
         try {
@@ -740,6 +805,39 @@
         forecastPanel.append(s1, s2, s3);
       }
 
+      function buildLotteryAlert(alertText) {
+        const aside = document.createElement('aside');
+        aside.className = 'lottery-alert';
+        aside.setAttribute('role', 'status');
+
+        const iconWrap = document.createElement('div');
+        iconWrap.className = 'lottery-icon-wrap';
+        iconWrap.setAttribute('aria-hidden', 'true');
+
+        const svgNS = 'http://www.w3.org/2000/svg';
+        const svg = document.createElementNS(svgNS, 'svg');
+        svg.setAttribute('viewBox', '0 0 24 24');
+        const path = document.createElementNS(svgNS, 'path');
+        path.setAttribute('d', 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1.41 16.09V20h-2.67v-1.93c-1.71-.36-3.16-1.46-3.27-3.4h1.96c.1 1.05.82 1.87 2.65 1.87 1.96 0 2.4-.98 2.4-1.59 0-.83-.44-1.61-2.67-2.14-2.48-.6-4.18-1.62-4.18-3.67 0-1.72 1.39-2.84 3.11-3.21V4h2.67v1.95c1.86.45 2.79 1.86 2.85 3.39H14.3c-.05-1.11-.64-1.87-2.22-1.87-1.5 0-2.4.68-2.4 1.64 0 .84.65 1.39 2.67 1.91s4.18 1.39 4.18 3.91c-.01 1.83-1.38 2.83-3.12 3.16z');
+        svg.appendChild(path);
+        iconWrap.appendChild(svg);
+
+        const body = document.createElement('div');
+        body.className = 'lottery-body';
+
+        const title = document.createElement('div');
+        title.className = 'lottery-title';
+        title.textContent = 'Loterijas veiksmes indikators';
+
+        const desc = document.createElement('p');
+        desc.className = 'lottery-desc';
+        desc.textContent = alertText;
+
+        body.append(title, desc);
+        aside.append(iconWrap, body);
+        return aside;
+      }
+
       function renderForecast() {
         const d = getDateObj(selectedDayOffset);
         const data = getForecastForDay(currentSign, selectedDayOffset);
@@ -748,6 +846,11 @@
         headerSubtitle.textContent = `${d.getDate()}. ${MONTHS_GEN[d.getMonth()]} • ${DAYS_FULL[d.getDay()]}`;
 
         forecastPanel.replaceChildren();
+
+        // Render highlighted lottery alert ONLY on days that have lottery probability
+        if (typeof data.lotteryAlert === 'string' && data.lotteryAlert.length > 0) {
+          forecastPanel.appendChild(buildLotteryAlert(data.lotteryAlert));
+        }
 
         const summaryCard = document.createElement('section');
         summaryCard.className = 'summary-card';
