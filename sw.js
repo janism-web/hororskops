@@ -1,8 +1,10 @@
-const CACHE_NAME = 'horoskops-m3-sec-v3';
+const CACHE_NAME = 'horoskops-m3-sec-v4';
 
 const ALLOWED_FILES = new Map([
   ['', 'text/html'],
   ['index.html', 'text/html'],
+  ['style.css', 'text/css'],
+  ['app.js', 'application/javascript'],
   ['manifest.json', 'application/json'],
   ['icon-192.png', 'image/png'],
   ['icon-512.png', 'image/png'],
@@ -12,6 +14,8 @@ const ALLOWED_FILES = new Map([
 const PRECACHE_URLS = [
   './',
   './index.html',
+  './style.css',
+  './app.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -30,6 +34,9 @@ function isValidContentType(response, expectedPrefix) {
   const ct = (response.headers.get('Content-Type') || '').toLowerCase();
   if (expectedPrefix === 'application/json') {
     return ct.includes('application/json') || ct.includes('application/manifest+json');
+  }
+  if (expectedPrefix === 'application/javascript') {
+    return ct.includes('javascript');
   }
   return ct.includes(expectedPrefix);
 }
@@ -78,7 +85,5 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cached);
 
-      return cached || networkFetch;
-    })
-  );
-});
+      return cached || networkFetch  })
+ .s.ee   rese;h
