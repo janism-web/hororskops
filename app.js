@@ -19,7 +19,6 @@
   const DAYS_FULL = Object.freeze(['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena']);
   const MONTHS_GEN = Object.freeze(['janvāris', 'februāris', 'marts', 'aprīlis', 'maijs', 'jūnijs', 'jūlijs', 'augusts', 'septembris', 'oktobris', 'novembris', 'decembris']);
 
-  // Only 3 items per sign per day: Darbs, Veselība, Nauda + optional lotteryAlert on favorable days
   const DATA_BANK = deepFreeze({
     svari: [
       {
@@ -144,7 +143,6 @@
     return d;
   }
 
-  // Strictly deterministic by calendar date — never changes on page refresh
   function getForecastForDay(sign, offset) {
     const d = getDateObj(offset);
     const epochDay = Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86400000);
@@ -249,12 +247,10 @@
 
     forecastPanel.replaceChildren();
 
-    // Conditional warning only on days with increased lottery win probability
     if (typeof data.lotteryAlert === 'string' && data.lotteryAlert.length > 0) {
       forecastPanel.appendChild(buildLotteryAlert(data.lotteryAlert));
     }
 
-    // Strictly 3 items: Darbs, Veselība, Nauda
     forecastPanel.append(
       buildDomainCard('Darbs', data.darbs, SVG_ICONS.darbs),
       buildDomainCard('Veselība', data.veseliba, SVG_ICONS.veseliba),

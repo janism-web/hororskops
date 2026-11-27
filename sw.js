@@ -1,4 +1,4 @@
-const CACHE_NAME = 'horoskops-m3-sec-v5';
+const CACHE_NAME = 'horoskops-m3-sec-v6';
 
 const ALLOWED_FILES = new Map([
   ['', 'text/html'],
