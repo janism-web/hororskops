@@ -1,4 +1,4 @@
-const CACHE_NAME = 'horoskops-m3-sec-v4';
+const CACHE_NAME = 'horoskops-m3-sec-v5';
 
 const ALLOWED_FILES = new Map([
   ['', 'text/html'],
@@ -85,5 +85,7 @@ self.addEventListener('fetch', (event) => {
         })
         .catch(() => cached);
 
-      return cached || networkFetch  })
- .s.ee   rese;h
+      return cached || networkFetch;
+    })
+  );
+});

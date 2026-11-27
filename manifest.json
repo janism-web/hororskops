@@ -1,7 +1,7 @@
 {
   "name": "Horoskops — Svari & Vēzis",
   "short_name": "Horoskops",
-  "description": "Analītiska 7 dienu prognoze Svariem un Vēzim ar galvenajiem + un -.",
+  "description": "7 dienu prognoze Svariem un Vēzim: Darbs, Veselība, Nauda.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
